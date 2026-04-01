@@ -1,1 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Free Dataset Access</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://w.tads.me/widget.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --bg:     var(--tg-theme-bg-color,          #0f0f1a);
+      --card:   var(--tg-theme-secondary-bg-color, #1a1a2e);
+      --text:   var(--tg-theme-text-color,         #ffffff);
+      --hint:   var(--tg-theme-hint-color,         #888888);
+      --accent: #6c63ff;
+      --green:  #16a34a;
+      --radius: 18px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+
+    /* ── Screens ── */
+    .screen { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 18px; text-align: center; animation: up .35s ease; }
+    .screen.active { display: flex; }
+    @keyframes up { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+
+    /* ── Loading ── */
+    .spinner { width:50px; height:50px; border:4px solid rgba(108,99,255,.2); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg) } }
+
+    /* ── Main card ── */
+    .card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .dataset-icon { font-size: 52px; }
+    .card h2 { font-size: 19px; font-weight: 800; line-height: 1.3; }
+    .card p  { color: var(--hint); font-size: 13px; line-height: 1.6; max-width: 300px; }
+    .divider { width:100%; height:1px; background:rgba(255,255,255,.07); }
+
+    /* ── Step row ── */
+    .steps { display:flex; gap:8px; width:100%; }
+    .step  {
+      flex:1; border-radius:99px; height:5px;
+      background: rgba(255,255,255,.1);
+      transition: background .4s;
+    }
+    .step.done   { background: var(--accent); }
+    .step.active { background: var(--accent); animation: pulse-bar 1.2s ease-in-out infinite; }
+    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* ── Watch Ad button ── */
+    .btn-watch {
+      width: 100%;
+      padding: 15px;
+      border: none; border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: #fff; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 4px 20px rgba(108,99,255,.4);
+      transition: transform .15s, opacity .2s;
+      position: relative; overflow: hidden;
+    }
+    .btn-watch:active  { transform: scale(.97); }
+    .btn-watch:disabled {
+      opacity: .5; cursor: not-allowed;
+      background: rgba(255,255,255,.1);
+      box-shadow: none;
+    }
+    .btn-watch.loading::after {
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);
+      animation: shimmer 1.2s infinite;
+    }
+    @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+
+    /* ── Download button (locked → unlocked) ── */
+    .btn-download {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid rgba(255,255,255,.12); border-radius: var(--radius);
+      background: rgba(255,255,255,.05);
+      color: var(--hint); font-size: 15px; font-weight: 700;
+      cursor: not-allowed;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all .4s ease;
+      position: relative;
+    }
+    .btn-download.unlocked {
+      background: linear-gradient(135deg, var(--green), #15803d);
+      border-color: transparent;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(22,163,74,.45);
+      animation: pop-in .4s ease;
+    }
+    .btn-download.unlocked:active { transform: scale(.97); }
+    @keyframes pop-in { 0%{transform:scale(.9)} 60%{transform:scale(1.04)} 100%{transform:scale(1)} }
+
+    .lock-icon { font-size: 18px; transition: all .3s; }
+
+    /* ── Info rows ── */
+    .info-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--hint); }
+    .info-row strong { color:var(--text); }
+
+    /* ── Ad note box ── */
+    .ad-note {
+      width: 100%;
+      background: rgba(108,99,255,.1);
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--hint);
+      line-height: 1.6;
+      text-align: left;
+    }
+    .ad-note strong { color: #a78bfa; }
+
+    /* ── Error screen ── */
+    .btn-ghost {
+      width:100%; padding:13px; border:1px solid rgba(255,255,255,.12); border-radius:var(--radius);
+      background:rgba(255,255,255,.05); color:var(--text); font-size:14px; font-weight:600;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Screen 1: Loading -->
+<div id="s-loading" class="screen active">
+  <div class="spinner"></div>
+  <p style="color:var(--hint);font-size:13px">Preparing your free dataset...</p>
+</div>
+
+<!-- Screen 2: Main -->
+<div id="s-main" class="screen">
+
+  <div class="steps">
+    <div class="step done"></div>
+    <div class="step active" id="step2"></div>
+    <div class="step" id="step3"></div>
+  </div>
+
+  <div class="card">
+    <div class="dataset-icon">📊</div>
+    <h2>Unlock Free Dataset Download</h2>
+    <p>Watch a short ad to unlock your <strong>free dataset</strong> download. The button activates only after the ad is fully completed.</p>
+
+    <div class="divider"></div>
+
+    <div class="info-row">🏷 <span>Access: <strong style="color:#4ade80">FREE (100% off)</strong></span></div>
+    <div class="info-row">⏱ <span>Takes: <strong>~15 seconds</strong></span></div>
+    <div class="info-row">✅ <span>No payment · No signup required</span></div>
+
+    <div class="divider"></div>
+
+    <div class="ad-note">
+      ⚠️ <strong>Important:</strong> You must watch the ad until the <strong>✕ close button appears</strong> and close it yourself. The download button will activate automatically once the ad is fully completed.
+    </div>
+
+    <!-- Watch Ad button -->
+    <button class="btn-watch" id="btn-watch">
+      <span>▶</span>
+      <span id="btn-watch-label">Watch Ad to Unlock</span>
+    </button>
+
+    <!-- Download button — locked until ad completes -->
+    <button class="btn-download" id="btn-download" disabled>
+      <span class="lock-icon" id="lock-icon">🔒</span>
+      <span id="download-label">Download Dataset — Watch ad first</span>
+    </button>
+
+    <p style="font-size:11px;color:var(--hint)">
+      The download button activates automatically after the ad ends.
+    </p>
+  </div>
+
+</div>
+
+<!-- Screen 3: Error / No Ad -->
+<div id="s-error" class="screen">
+  <div style="font-size:52px">⚠️</div>
+  <h2 style="font-size:19px;font-weight:800">Ad Unavailable</h2>
+  <p style="color:var(--hint);font-size:13px">No ads available right now. You can still access your dataset directly.</p>
+  <button class="btn-download unlocked" onclick="goToDataset()" style="cursor:pointer">
+    <span>🚀</span><span>Access Dataset Directly</span>
+  </button>
+  <button class="btn-ghost" onclick="startAd()">Try Again</button>
+</div>
+
+<!-- TADS hidden container -->
+<div id="tads-container-9604" style="display:none"></div>
+
+<script>
+  // ── Telegram ──
+  const tg = window.Telegram?.WebApp || null;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  // ── Decode dataset URL from Base64 startapp param ──
+  function getDatasetUrl() {
+    const code = tg?.initDataUnsafe?.start_param
+      || new URLSearchParams(window.location.search).get('startapp')
+      || new URLSearchParams(window.location.search).get('tgWebAppStartParam');
+    if (!code) { console.warn('No startapp param'); return null; }
+    try {
+      const padded = code + '=='.slice(0, (4 - code.length % 4) % 4);
+      const decoded = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+      if (decoded.startsWith('http')) { console.log('✅ Dataset URL:', decoded); return decoded; }
+    } catch(e) { console.error('Base64 error:', e); }
+    return null;
+  }
+
+  const DATASET_URL = getDatasetUrl();
+  const WIDGET_ID   = 9604;
+  let   adController = null;
+  let   adWatched    = false;
+
+  // ── Screen management ──
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id)?.classList.add('active');
+  }
+
+  // ── Unlock download button after ad completes ──
+  function unlockDownloadButton() {
+    if (adWatched) return;
+    adWatched = true;
+
+    // Update steps
+    document.getElementById('step2')?.classList.replace('active', 'done');
+    document.getElementById('step3')?.classList.add('active');
+
+    // Activate button
+    const btn   = document.getElementById('btn-download');
+    const icon  = document.getElementById('lock-icon');
+    const label = document.getElementById('download-label');
+    if (btn)   { btn.disabled = false; btn.classList.add('unlocked'); btn.onclick = goToDataset; }
+    if (icon)  { icon.textContent = '📥'; }
+    if (label) { label.textContent = 'Download Dataset — FREE'; }
+
+    // Dim the watch button
+    const watchBtn = document.getElementById('btn-watch');
+    if (watchBtn) { watchBtn.style.opacity = '0.4'; watchBtn.disabled = true; }
+  }
+
+  // ── Navigate to dataset ──
+  function goToDataset() {
+    const url = DATASET_URL || 'https://www.kaggle.com/';
+    console.log('📊 Going to:', url);
+    if (tg?.openLink) {
+      tg.openLink(url);
+      setTimeout(() => tg.close(), 600);
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  // ── Start fullscreen ad ──
+  function startAd() {
+    const watchBtn   = document.getElementById('btn-watch');
+    const watchLabel = document.getElementById('btn-watch-label');
+
+    if (watchBtn)   { watchBtn.disabled = true; watchBtn.classList.add('loading'); }
+    if (watchLabel) { watchLabel.textContent = 'Loading Ad...'; }
+
+    if (!adController) {
+      console.warn('adController not ready');
+      unlockDownloadButton(); // fallback
+      return;
+    }
+
+    adController.showAd()
+      .then(() => {
+        console.log('✅ Ad shown successfully');
+        unlockDownloadButton();
+      })
+      .catch((err) => {
+        console.error('Ad error:', err);
+        if (watchBtn)   { watchBtn.disabled = false; watchBtn.classList.remove('loading'); }
+        if (watchLabel) { watchLabel.textContent = 'Watch Ad to Unlock'; }
+        // If no ad available — unlock directly
+        if (err?.type === 'ADS_NOT_FOUND' || !err) {
+          unlockDownloadButton();
+        }
+      });
+  }
+
+  // ── Initialize TADS ──
+  function initTads() {
+    if (!window.tads?.init) return;
+
+    try {
+      adController = window.tads.init({
+        widgetId: WIDGET_ID,
+        type: 'fullscreen',
+        debug: false,
+        onShowReward: (result) => {
+          // ✅ Ad completed — unlock download button
+          console.log('onShowReward:', result);
+          unlockDownloadButton();
+        },
+        onAdsNotFound: () => {
+          console.warn('No ads found');
+          unlockDownloadButton();
+        }
+      });
+
+      // Bind watch button
+      document.getElementById('btn-watch')?.addEventListener('click', startAd);
+
+      showScreen('s-main');
+
+    } catch(e) {
+      console.error('TADS init error:', e);
+      showScreen('s-error');
+    }
+  }
+
+  // ── Initialize on page load ──
+  window.addEventListener('load', () => {
+    showScreen('s-loading');
+
+    // Wait for TADS SDK to load
+    let tries = 0;
+    const iv = setInterval(() => {
+      tries++;
+      if (window.tads?.init) {
+        clearInterval(iv);
+        initTads();
+      } else if (tries > 60) {
+        // After ~12 seconds — show main screen without ad
+        clearInterval(iv);
+        unlockDownloadButton();
+        showScreen('s-main');
+      }
+    }, 200);
+  });
+</script>
+</body>
+</html>
