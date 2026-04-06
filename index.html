@@ -5,212 +5,491 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Free Dataset Access</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://w.tads.me/widget.js"></script>
+  <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg:     var(--tg-theme-bg-color,          #0f0f1a);
-      --card:   var(--tg-theme-secondary-bg-color, #1a1a2e);
-      --text:   var(--tg-theme-text-color,         #ffffff);
-      --hint:   var(--tg-theme-hint-color,         #888888);
-      --accent: #6c63ff;
-      --green:  #16a34a;
-      --radius: 18px;
+      --tg-bg:       var(--tg-theme-bg-color,            #1c1c1e);
+      --tg-card:     var(--tg-theme-secondary-bg-color,  #2c2c2e);
+      --tg-text:     var(--tg-theme-text-color,          #ffffff);
+      --tg-hint:     var(--tg-theme-hint-color,          #8e8e93);
+      --tg-btn:      var(--tg-theme-button-color,        #2196f3);
+      --tg-btn-text: var(--tg-theme-button-text-color,   #ffffff);
+      --tg-link:     var(--tg-theme-link-color,          #2196f3);
+
+      --blue:   #2196f3;
+      --blue2:  #42a5f5;
+      --green:  #34c759;
+      --green2: #30d158;
+      --purple: #bf5af2;
+      --orange: #ff9f0a;
+      --surface: rgba(255,255,255,0.06);
+      --border:  rgba(255,255,255,0.09);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
     }
+
+    html { -webkit-tap-highlight-color: transparent; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--tg-bg);
+      color: var(--tg-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0;
+      overflow-x: hidden;
     }
 
-    /* ── Screens ── */
-    .screen { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; gap: 18px; text-align: center; animation: up .35s ease; }
+    /* ─────────── Page wrapper ─────────── */
+    .page {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    /* ─────────── Screens ─────────── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      animation: fadeSlide .28s cubic-bezier(.4,0,.2,1);
+    }
     .screen.active { display: flex; }
-    @keyframes up { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-    /* ── Loading ── */
-    .spinner { width:50px; height:50px; border:4px solid rgba(108,99,255,.2); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg) } }
+    /* ─────────── Loading screen ─────────── */
+    #s-loading {
+      justify-content: center;
+      gap: 18px;
+      padding: 40px 20px;
+    }
+    .spinner-wrap {
+      width: 60px; height: 60px;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .spinner-track {
+      width: 60px; height: 60px;
+      border: 2.5px solid rgba(33,150,243,0.15);
+      border-radius: 50%;
+      position: absolute;
+    }
+    .spinner-fill {
+      width: 60px; height: 60px;
+      border: 2.5px solid transparent;
+      border-top-color: var(--blue);
+      border-right-color: rgba(33,150,243,0.4);
+      border-radius: 50%;
+      position: absolute;
+      animation: spin .75s linear infinite;
+    }
+    .spinner-dot {
+      width: 8px; height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-hint { font-size: 13px; color: var(--tg-hint); letter-spacing: 0.1px; }
 
-    /* ── Main card ── */
-    .card {
+    /* ─────────── Hero section ─────────── */
+    .hero {
       width: 100%;
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: var(--radius);
-      padding: 22px 18px;
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      padding: 32px 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
     }
-    .dataset-icon { font-size: 52px; }
-    .card h2 { font-size: 19px; font-weight: 800; line-height: 1.3; }
-    .card p  { color: var(--hint); font-size: 13px; line-height: 1.6; max-width: 300px; }
-    .divider { width:100%; height:1px; background:rgba(255,255,255,.07); }
 
-    /* ── Step row ── */
-    .steps { display:flex; gap:8px; width:100%; }
-    .step  {
-      flex:1; border-radius:99px; height:5px;
-      background: rgba(255,255,255,.1);
-      transition: background .4s;
-    }
-    .step.done   { background: var(--accent); }
-    .step.active { background: var(--accent); animation: pulse-bar 1.2s ease-in-out infinite; }
-    @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.5} }
-
-    /* ── Watch Ad button ── */
-    .btn-watch {
-      width: 100%;
-      padding: 15px;
-      border: none; border-radius: var(--radius);
-      background: linear-gradient(135deg, var(--accent), #9333ea);
-      color: #fff; font-size: 15px; font-weight: 700;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      box-shadow: 0 4px 20px rgba(108,99,255,.4);
-      transition: transform .15s, opacity .2s;
-      position: relative; overflow: hidden;
-    }
-    .btn-watch:active  { transform: scale(.97); }
-    .btn-watch:disabled {
-      opacity: .5; cursor: not-allowed;
-      background: rgba(255,255,255,.1);
-      box-shadow: none;
-    }
-    .btn-watch.loading::after {
-      content:'';
-      position:absolute; inset:0;
-      background: linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);
-      animation: shimmer 1.2s infinite;
-    }
-    @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
-
-    /* ── Download button (locked → unlocked) ── */
-    .btn-download {
-      width: 100%;
-      padding: 15px;
-      border: 2px solid rgba(255,255,255,.12); border-radius: var(--radius);
-      background: rgba(255,255,255,.05);
-      color: var(--hint); font-size: 15px; font-weight: 700;
-      cursor: not-allowed;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: all .4s ease;
+    .icon-outer {
+      width: 86px; height: 86px;
+      background: rgba(33,150,243,0.12);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
       position: relative;
     }
-    .btn-download.unlocked {
-      background: linear-gradient(135deg, var(--green), #15803d);
+    .icon-inner { font-size: 40px; line-height: 1; }
+    .icon-badge {
+      position: absolute;
+      bottom: -4px; right: -4px;
+      width: 24px; height: 24px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      border: 2px solid var(--tg-bg);
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(33,150,243,0.12);
+      border: 1px solid rgba(33,150,243,0.22);
+      border-radius: 99px;
+      padding: 5px 13px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--blue2);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.25;
+      letter-spacing: -0.3px;
+    }
+    .hero-title span { color: var(--blue); }
+
+    .hero-sub {
+      font-size: 13.5px;
+      color: var(--tg-hint);
+      text-align: center;
+      line-height: 1.55;
+      max-width: 300px;
+    }
+
+    /* ─────────── Progress steps ─────────── */
+    .progress-wrap {
+      width: 100%;
+      padding: 0 20px;
+      margin-top: 24px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .progress-title { font-size: 12px; font-weight: 600; color: var(--tg-hint); letter-spacing: 0.3px; text-transform: uppercase; }
+    .progress-count { font-size: 12px; font-weight: 600; color: var(--blue); }
+    .steps {
+      display: flex;
+      gap: 5px;
+      width: 100%;
+    }
+    .step {
+      flex: 1; height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      transition: background .35s ease;
+      overflow: hidden;
+      position: relative;
+    }
+    .step.done { background: var(--blue); }
+    .step.active::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--blue);
+      animation: fillStep 1.6s ease-in-out infinite;
+    }
+    @keyframes fillStep {
+      0%,100% { opacity: 1; transform: translateX(0); }
+      50%      { opacity: .5; transform: translateX(0); }
+    }
+
+    /* ─────────── Stat chips ─────────── */
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      padding: 0 20px;
+      margin-top: 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .chips-row::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: var(--tg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      min-width: 80px;
+    }
+    .chip-icon { font-size: 18px; }
+    .chip-val  { font-size: 13px; font-weight: 700; color: var(--tg-text); }
+    .chip-lbl  { font-size: 10.5px; color: var(--tg-hint); white-space: nowrap; }
+
+    /* ─────────── Notice card ─────────── */
+    .notice-wrap {
+      width: 100%;
+      padding: 0 20px;
+      margin-top: 16px;
+    }
+    .notice {
+      display: flex;
+      gap: 12px;
+      background: rgba(255,159,10,0.08);
+      border: 1px solid rgba(255,159,10,0.2);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+    }
+    .notice-left {
+      width: 32px; height: 32px;
+      background: rgba(255,159,10,0.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .notice-body { font-size: 12.5px; color: var(--tg-hint); line-height: 1.65; text-align: left; }
+    .notice-body strong { color: #ff9f0a; font-weight: 600; }
+
+    /* ─────────── CTA section ─────────── */
+    .cta-wrap {
+      width: 100%;
+      padding: 0 20px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Watch Ad button */
+    .btn-watch {
+      width: 100%;
+      padding: 15px 18px;
+      border: none;
+      border-radius: var(--radius-lg);
+      background: var(--blue);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: opacity .2s, transform .12s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-watch:active  { transform: scale(.98); opacity: .9; }
+    .btn-watch:disabled {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.25);
+      cursor: not-allowed;
+    }
+    .btn-watch .btn-ic { font-size: 17px; }
+    .btn-watch.loading::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 20%, rgba(255,255,255,.14) 50%, transparent 80%);
+      animation: shimmer 1.1s infinite;
+    }
+    @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+    /* Download button */
+    .btn-dl {
+      width: 100%;
+      padding: 15px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      color: rgba(255,255,255,0.25);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+      cursor: not-allowed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: all .38s cubic-bezier(.34,1.56,.64,1);
+    }
+    .btn-dl.unlocked {
+      background: var(--green);
       border-color: transparent;
       color: #fff;
       cursor: pointer;
-      box-shadow: 0 4px 24px rgba(22,163,74,.45);
-      animation: pop-in .4s ease;
+      box-shadow: 0 4px 22px rgba(52,199,89,0.3);
     }
-    .btn-download.unlocked:active { transform: scale(.97); }
-    @keyframes pop-in { 0%{transform:scale(.9)} 60%{transform:scale(1.04)} 100%{transform:scale(1)} }
+    .btn-dl.unlocked:active { transform: scale(.98); opacity: .9; }
 
-    .lock-icon { font-size: 18px; transition: all .3s; }
+    .dl-icon { font-size: 17px; transition: all .3s; }
 
-    /* ── Info rows ── */
-    .info-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--hint); }
-    .info-row strong { color:var(--text); }
-
-    /* ── Ad note box ── */
-    .ad-note {
-      width: 100%;
-      background: rgba(108,99,255,.1);
-      border: 1px solid rgba(108,99,255,.3);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 12px;
-      color: var(--hint);
-      line-height: 1.6;
-      text-align: left;
+    /* ─────────── Footer hint ─────────── */
+    .footer-hint {
+      font-size: 11.5px;
+      color: var(--tg-hint);
+      opacity: .6;
+      text-align: center;
+      padding: 0 20px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
-    .ad-note strong { color: #a78bfa; }
 
-    /* ── Error screen ── */
+    /* ─────────── Divider ─────────── */
+    .sep {
+      width: calc(100% - 40px);
+      height: 1px;
+      background: var(--border);
+      margin: 0 20px;
+    }
+
+    /* ─────────── Error screen ─────────── */
+    #s-error {
+      justify-content: center;
+      gap: 16px;
+      padding: 40px 20px;
+    }
+    .err-icon {
+      width: 80px; height: 80px;
+      background: rgba(255,59,48,0.1);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+    }
     .btn-ghost {
-      width:100%; padding:13px; border:1px solid rgba(255,255,255,.12); border-radius:var(--radius);
-      background:rgba(255,255,255,.05); color:var(--text); font-size:14px; font-weight:600;
-      cursor:pointer;
+      width: 100%;
+      max-width: 390px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      color: var(--tg-text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
     }
+    .btn-ghost:active { background: rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
+<div class="page">
 
-<!-- Screen 1: Loading -->
-<div id="s-loading" class="screen active">
-  <div class="spinner"></div>
-  <p style="color:var(--hint);font-size:13px">Preparing your free dataset...</p>
-</div>
-
-<!-- Screen 2: Main -->
-<div id="s-main" class="screen">
-
-  <div class="steps">
-    <div class="step done"></div>
-    <div class="step active" id="step2"></div>
-    <div class="step" id="step3"></div>
+  <!-- ── Screen 1: Loading ── -->
+  <div id="s-loading" class="screen active">
+    <div class="spinner-wrap">
+      <div class="spinner-track"></div>
+      <div class="spinner-fill"></div>
+      <div class="spinner-dot"></div>
+    </div>
+    <p class="loading-hint">Preparing your free dataset&hellip;</p>
   </div>
 
-  <div class="card">
-    <div class="dataset-icon">📊</div>
-    <h2>Unlock Free Dataset Download</h2>
-    <div class="divider"></div>
+  <!-- ── Screen 2: Main ── -->
+  <div id="s-main" class="screen">
 
-    <div class="info-row">🏷 <span>Access: <strong style="color:#4ade80">FREE (100% off)</strong></span></div>
-    <div class="info-row">⏱ <span>Takes: <strong>~15 seconds</strong></span></div>
-    <div class="info-row">✅ <span>No payment · No signup required</span></div>
-
-    <div class="divider"></div>
-
-    <div class="ad-note">
-      ⚠️ <strong>Important:</strong> You must watch the ad until the <strong>✕ close button appears</strong> and close it yourself. The download button will activate automatically once the ad is fully completed.
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-tag">&#x2605; Free Access</div>
+      <div class="icon-outer">
+        <span class="icon-inner">📊</span>
+        <span class="icon-badge">✓</span>
+      </div>
+      <h1 class="hero-title">Unlock Your <span>Free Dataset</span></h1>
+      <p class="hero-sub">Watch a short ad to get instant free access — no payment or signup needed.</p>
     </div>
 
-    <!-- Watch Ad button -->
-    <button class="btn-watch" id="btn-watch">
-      <span>▶</span>
-      <span id="btn-watch-label">Watch Ad to Unlock</span>
-    </button>
+    <!-- Steps -->
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-title">Progress</span>
+        <span class="progress-count" id="step-count">Step 2 of 3</span>
+      </div>
+      <div class="steps">
+        <div class="step done"></div>
+        <div class="step active" id="step2"></div>
+        <div class="step" id="step3"></div>
+      </div>
+    </div>
 
-    <!-- Download button — locked until ad completes -->
-    <button class="btn-download" id="btn-download" disabled>
-      <span class="lock-icon" id="lock-icon">🔒</span>
-      <span id="download-label">Download Dataset — Watch ad first</span>
-    </button>
+    <!-- Chips -->
+    <div class="chips-row">
+      <div class="chip">
+        <span class="chip-icon">🆓</span>
+        <span class="chip-val">FREE</span>
+        <span class="chip-lbl">No cost</span>
+      </div>
+      <div class="chip">
+        <span class="chip-icon">⚡</span>
+        <span class="chip-val">~15s</span>
+        <span class="chip-lbl">Quick unlock</span>
+      </div>
+      <div class="chip">
+        <span class="chip-icon">🔐</span>
+        <span class="chip-val">Safe</span>
+        <span class="chip-lbl">No signup</span>
+      </div>
+      <div class="chip">
+        <span class="chip-icon">📥</span>
+        <span class="chip-val">Direct</span>
+        <span class="chip-lbl">Instant link</span>
+      </div>
+    </div>
 
-    <p style="font-size:11px;color:var(--hint)">
-      The download button activates automatically after the ad ends.
-    </p>
+    <!-- Notice -->
+    <div class="notice-wrap">
+      <div class="notice">
+        <div class="notice-left">⚠️</div>
+        <p class="notice-body">
+          Watch the ad until the <strong>✕ close button appears</strong>, then close it manually.
+          The <strong>Download button</strong> unlocks automatically once the ad completes.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <button class="btn-watch" id="btn-watch">
+        <span class="btn-ic">▶</span>
+        <span id="btn-watch-label">Watch Ad to Unlock</span>
+      </button>
+
+      <button class="btn-dl" id="btn-dl" disabled>
+        <span class="dl-icon" id="dl-icon">🔒</span>
+        <span id="dl-label">Download Dataset — Watch ad first</span>
+      </button>
+    </div>
+
+    <p class="footer-hint">Download button activates automatically after the ad ends.</p>
+
   </div>
 
-</div>
+  <!-- ── Screen 3: Error ── -->
+  <div id="s-error" class="screen">
+    <div class="err-icon">⚠️</div>
+    <h2 style="font-size:19px;font-weight:700">Ad Unavailable</h2>
+    <p style="color:var(--tg-hint);font-size:13px;text-align:center;max-width:280px;line-height:1.6">
+      No ads are available right now. You can still access your dataset directly below.
+    </p>
+    <button class="btn-dl unlocked" onclick="goToDataset()" style="cursor:pointer;max-width:390px">
+      <span>🚀</span><span>Access Dataset Directly</span>
+    </button>
+    <button class="btn-ghost" onclick="startAd()">Try Again</button>
+  </div>
 
-<!-- Screen 3: Error / No Ad -->
-<div id="s-error" class="screen">
-  <div style="font-size:52px">⚠️</div>
-  <h2 style="font-size:19px;font-weight:800">Ad Unavailable</h2>
-  <p style="color:var(--hint);font-size:13px">No ads available right now. You can still access your dataset directly.</p>
-  <button class="btn-download unlocked" onclick="goToDataset()" style="cursor:pointer">
-    <span>🚀</span><span>Access Dataset Directly</span>
-  </button>
-  <button class="btn-ghost" onclick="startAd()">Try Again</button>
-</div>
-
-<!-- TADS hidden container -->
-<div id="tads-container-9604" style="display:none"></div>
+</div><!-- end .page -->
 
 <script>
-  // ── Telegram ──
   const tg = window.Telegram?.WebApp || null;
   if (tg) { tg.ready(); tg.expand(); }
 
-  // ── Decode dataset URL from Base64 startapp param ──
   function getDatasetUrl() {
     const code = tg?.initDataUnsafe?.start_param
       || new URLSearchParams(window.location.search).get('startapp')
@@ -219,48 +498,44 @@
     try {
       const padded = code + '=='.slice(0, (4 - code.length % 4) % 4);
       const decoded = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
-      if (decoded.startsWith('http')) { console.log('✅ Dataset URL:', decoded); return decoded; }
-    } catch(e) { console.error('Base64 error:', e); }
+      if (decoded.startsWith('http')) return decoded;
+    } catch(e) { console.error('Base64 decode error:', e); }
     return null;
   }
 
   const DATASET_URL = getDatasetUrl();
-  const WIDGET_ID   = 9604;
-  let   adController = null;
-  let   adWatched    = false;
+  let ads = null;
+  let adWatched = false;
 
-  // ── Screen management ──
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id)?.classList.add('active');
   }
 
-  // ── Unlock download button after ad completes ──
   function unlockDownloadButton() {
     if (adWatched) return;
     adWatched = true;
 
-    // Update steps
-    document.getElementById('step2')?.classList.replace('active', 'done');
-    document.getElementById('step3')?.classList.add('active');
+    const s2  = document.getElementById('step2');
+    const s3  = document.getElementById('step3');
+    const cnt = document.getElementById('step-count');
+    if (s2)  { s2.classList.remove('active'); s2.classList.add('done'); }
+    if (s3)  { s3.classList.add('active'); }
+    if (cnt) { cnt.textContent = 'Step 3 of 3'; }
 
-    // Activate button
-    const btn   = document.getElementById('btn-download');
-    const icon  = document.getElementById('lock-icon');
-    const label = document.getElementById('download-label');
+    const btn   = document.getElementById('btn-dl');
+    const icon  = document.getElementById('dl-icon');
+    const label = document.getElementById('dl-label');
     if (btn)   { btn.disabled = false; btn.classList.add('unlocked'); btn.onclick = goToDataset; }
     if (icon)  { icon.textContent = '📥'; }
     if (label) { label.textContent = 'Download Dataset — FREE'; }
 
-    // Dim the watch button
     const watchBtn = document.getElementById('btn-watch');
-    if (watchBtn) { watchBtn.style.opacity = '0.4'; watchBtn.disabled = true; }
+    if (watchBtn)  { watchBtn.disabled = true; watchBtn.style.opacity = '0.3'; }
   }
 
-  // ── Navigate to dataset ──
   function goToDataset() {
     const url = DATASET_URL || 'https://www.kaggle.com/';
-    console.log('📊 Going to:', url);
     if (tg?.openLink) {
       tg.openLink(url);
       setTimeout(() => tg.close(), 600);
@@ -269,7 +544,6 @@
     }
   }
 
-  // ── Start fullscreen ad ──
   function startAd() {
     const watchBtn   = document.getElementById('btn-watch');
     const watchLabel = document.getElementById('btn-watch-label');
@@ -277,73 +551,53 @@
     if (watchBtn)   { watchBtn.disabled = true; watchBtn.classList.add('loading'); }
     if (watchLabel) { watchLabel.textContent = 'Loading Ad...'; }
 
-    if (!adController) {
-      console.warn('adController not ready');
-      unlockDownloadButton(); // fallback
+    if (!ads) {
+      console.warn('Telega ads not ready — unlocking directly');
+      unlockDownloadButton();
       return;
     }
 
-    adController.showAd()
-      .then(() => {
-        console.log('✅ Ad shown successfully');
+    ads.ad_show({ adBlockUuid: "b116a7e3-bc87-40eb-b678-fd5e9e70e326" })
+      .then((result) => {
+        console.log('Ad result:', result);
         unlockDownloadButton();
       })
       .catch((err) => {
         console.error('Ad error:', err);
         if (watchBtn)   { watchBtn.disabled = false; watchBtn.classList.remove('loading'); }
         if (watchLabel) { watchLabel.textContent = 'Watch Ad to Unlock'; }
-        // If no ad available — unlock directly
-        if (err?.type === 'ADS_NOT_FOUND' || !err) {
+        const errType = err?.type || err?.code || '';
+        if (!errType || errType === 'ADS_NOT_FOUND' || errType === 'NO_ADS') {
           unlockDownloadButton();
         }
       });
   }
 
-  // ── Initialize TADS ──
-  function initTads() {
-    if (!window.tads?.init) return;
-
+  function initTelega() {
     try {
-      adController = window.tads.init({
-        widgetId: WIDGET_ID,
-        type: 'fullscreen',
-        debug: false,
-        onShowReward: (result) => {
-          // ✅ Ad completed — unlock download button
-          console.log('onShowReward:', result);
-          unlockDownloadButton();
-        },
-        onAdsNotFound: () => {
-          console.warn('No ads found');
-          unlockDownloadButton();
-        }
+      ads = window.TelegaIn.AdsController.create_miniapp({
+        token: 'e82145df-45c3-4f42-afb0-857588ada69b'
       });
-
-      // Bind watch button
       document.getElementById('btn-watch')?.addEventListener('click', startAd);
-
       showScreen('s-main');
-
+      console.log('Telega ads initialized');
     } catch(e) {
-      console.error('TADS init error:', e);
+      console.error('Telega init error:', e);
       showScreen('s-error');
     }
   }
 
-  // ── Initialize on page load ──
   window.addEventListener('load', () => {
     showScreen('s-loading');
-
-    // Wait for TADS SDK to load
     let tries = 0;
     const iv = setInterval(() => {
       tries++;
-      if (window.tads?.init) {
+      if (window.TelegaIn?.AdsController) {
         clearInterval(iv);
-        initTads();
+        initTelega();
       } else if (tries > 60) {
-        // After ~12 seconds — show main screen without ad
         clearInterval(iv);
+        console.warn('Telega SDK timeout — unlocking directly');
         unlockDownloadButton();
         showScreen('s-main');
       }
