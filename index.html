@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Kaggle Dataset Access - Premium UI</title>
+  <title>Kaggle Dataset Access - 2 Steps</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://w.tads.me/widget.js"></script>
   <style>
-    /* Import modern font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     :root {
-      /* Refreshed, more vibrant Kaggle Palette */
-      --kg-blue: #008BB9; /* More saturated Blue */
-      --kg-blue-dark: #006F94;
-      --kg-bg: #F0F2F5; /* Slightly cooler grey */
+      --kg-blue: #00AFEF;
+      --kg-bg: #F5F5F5;
       --kg-card: #FFFFFF;
-      --kg-text: #1A1A1C; /* Near black for contrast */
-      --kg-hint: #606770;
-      --kg-border: #E4E6EB;
-      --kg-success: #00E676; /* Bright, vibrant green */
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-      --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --kg-text: #202124;
+      --kg-hint: #5F6368;
+      --kg-border: #DADCE0;
+      --kg-success: #00C176;
+      --radius-lg: 16px;
     }
 
     body {
@@ -37,7 +35,6 @@
       display: flex;
       justify-content: center;
       padding: 0;
-      overflow: hidden; /* Prevent bounce scroll */
     }
 
     .page {
@@ -45,378 +42,320 @@
       max-width: 430px;
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
-    /* Elegant Fade-in & Slide-up animation for screens */
-    .screen { 
-      display: none; 
-      flex-direction: column; 
-      align-items: center; 
-      padding: 24px; 
-      opacity: 0;
-      transform: translateY(20px);
-      transition: var(--transition);
-      height: 100vh;
-    }
-    .screen.active { 
-      display: flex; 
-      opacity: 1;
-      transform: translateY(0);
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      animation: fadeIn 0.3s ease;
     }
 
-    /* Hero Section - Compact & Punchy */
-    .hero { 
-      text-align: center; 
-      margin-top: 10px; 
-      margin-bottom: 24px;
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      animation: fadeInDown 0.5s ease out 0.2s both;
+    .screen.active {
+      display: flex;
     }
-    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .hero {
+      text-align: center;
+      margin-top: 20px;
+      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     .icon-outer {
-      width: 80px; height: 80px;
-      background: #FFFFFF;
-      border-radius: 24px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 38px;
-      box-shadow: var(--shadow-md);
-      margin-bottom: 16px;
-      position: relative;
-    }
-    /* Small decorative dot */
-    .icon-outer::after {
-        content:''; position: absolute; top: -5px; right: -5px; width: 15px; height: 15px; background: var(--kg-blue); border-radius: 50%; border: 3px solid #fff;
+      width: 70px;
+      height: 70px;
+      background: rgba(0, 175, 239, 0.1);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
     }
 
-    .hero-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;}
-    .hero-title span { color: var(--kg-blue); }
-    .hero-subtitle { color: var(--kg-hint); font-size: 14px; line-height: 1.5; max-width: 280px; }
-
-    /* Progress & Tasks Container */
-    .main-content {
-        width: 100%;
-        background: var(--kg-card);
-        border-radius: var(--radius-lg);
-        padding: 20px;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--kg-border);
-        animation: slideUpFade 0.5s ease out 0.3s both;
+    .hero-title {
+      font-size: 22px;
+      font-weight: 700;
     }
-    @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    .progress-header {
-        display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--kg-border);
+    .hero-title span {
+      color: var(--kg-blue);
     }
-    .progress-title { font-size: 12px; font-weight: 700; color: var(--kg-hint); letter-spacing: 1px; text-transform: uppercase; }
-    .progress-count { font-size: 15px; font-weight: 800; color: var(--kg-blue); background: rgba(0,139,185,0.1); padding: 4px 10px; border-radius: 20px;}
 
-    .task-list { width: 100%; display: flex; flex-direction: column; gap: 12px; }
-    
+    /* Progress & Tasks */
+    .progress-wrap {
+      width: 100%;
+      margin-top: 24px;
+    }
+
+    .task-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
     .task-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--kg-card); border: 2px solid var(--kg-border);
-      padding: 14px 16px; border-radius: var(--radius-md); transition: var(--transition);
-      position: relative; overflow: hidden;
-    }
-    
-    /* Active State Glow for the item to be clicked */
-    .task-item.current-active {
-        border-color: var(--kg-blue);
-        box-shadow: 0 0 15px rgba(0,139,185,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--kg-card);
+      border: 1px solid var(--kg-border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: 0.3s;
     }
 
-    .task-item.disabled { opacity: 0.6; pointer-events: none; background: #fafafa; border-style: dashed; }
-    
-    /* Success State - Vibrant Green */
-    .task-item.completed { 
-        border-color: var(--kg-success); 
-        background: rgba(0, 230, 118, 0.03); 
+    .task-item.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      background: #eee;
     }
-    .task-item.completed .task-title { color: var(--kg-hint); text-decoration: line-through; }
 
-    .task-info { display: flex; align-items: center; gap: 14px; }
-    .task-icon-status { font-size: 20px; width: 30px; text-align: center; }
-    .task-title { font-size: 15px; font-weight: 700; color: var(--kg-text); }
+    .task-item.completed {
+      border-color: var(--kg-success);
+      background: rgba(0, 193, 118, 0.05);
+    }
 
-    /* Buttons - More Interactive */
     .task-btn {
-      background: var(--kg-blue); color: white; border: none;
-      padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px;
-      cursor: pointer; transition: var(--transition);
-      box-shadow: 0 4px 10px rgba(0,139,185,0.2);
-    }
-    
-    /* Pulse animation for the active button */
-    .task-item.current-active .task-btn {
-        animation: pulseBtn 2s infinite;
-    }
-    @keyframes pulseBtn { 
-        0% { box-shadow: 0 0 0 0 rgba(0,139,185,0.6); } 
-        70% { box-shadow: 0 0 0 10px rgba(0,139,185,0); } 
-        100% { box-shadow: 0 0 0 0 rgba(0,139,185,0); } 
+      background: var(--kg-blue);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .task-btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,139,185,0.2); }
-    
-    .task-btn.done { 
-        background: rgba(0, 230, 118, 0.1); color: var(--kg-success); 
-        cursor: default; box-shadow: none; font-size: 18px; padding: 10px;
+    .task-btn.done {
+      background: transparent;
+      color: var(--kg-success);
+      cursor: default;
     }
 
-    /* Final Unlock Button - Shiny & Vibrant */
+    /* Final Button */
     .btn-final {
-      width: 100%; padding: 18px; border-radius: var(--radius-lg); border: none;
-      font-size: 16px; font-weight: 800; margin-top: 20px;
-      background: var(--kg-border); color: var(--kg-hint); cursor: not-allowed;
-      transition: var(--transition);
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      position: relative; overflow: hidden;
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 20px;
+      background: var(--kg-border);
+      color: var(--kg-hint);
+      cursor: not-allowed;
+      transition: 0.3s;
     }
-    
-    /* Enabled state - Success Green with Shimmer effect */
-    .btn-final.active { 
-        background: var(--kg-success); 
-        color: white; 
-        cursor: pointer; 
-        box-shadow: 0 6px 20px rgba(0,230,118,0.4); 
-    }
-    .btn-final.active:active { transform: scale(0.98); box-shadow: 0 3px 10px rgba(0,230,118,0.3); }
 
-    /* Shimmer Effect Animation */
-    .btn-final.active::after {
-        content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: shimmer 2.5s infinite;
+    .btn-final.active {
+      background: var(--kg-success);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 193, 118, 0.3);
     }
-    @keyframes shimmer { 100% { left: 100%; } }
 
-    /* TGB Ad Section - Clean Integrated look */
-    .tgb-wrapper { 
-        margin-top: auto; 
-        padding: 15px; 
-        width: 100%; 
-        text-align: center; 
-        background: #FFFFFF; 
-        border-top: 1px solid var(--kg-border);
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
+    /* TGB Ad Section */
+    .tgb-wrapper {
+      margin-top: auto;
+      padding-top: 20px;
+      width: 100%;
+      text-align: center;
     }
-    .tgb-label { color: var(--kg-hint); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; display: block;}
-    #tads-container-9639 { min-height: 90px; display: flex; justify-content: center; align-items: center;}
 
-    /* Loading Spinner - Modern Centered */
-    #s-loading { justify-content: center; background: #FFFFFF; }
-    .spinner-box { text-align: center; }
-    .spinner { 
-        width: 40px; height: 40px; border: 4px solid rgba(0,139,185,0.1); border-top-color: var(--kg-blue); 
-        border-radius: 50%; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; 
-        margin: 0 auto 15px;
+    #tads-container-9639 {
+      min-height: 90px;
+      margin-top: 10px;
+      border-top: 1px dashed var(--kg-border);
+      padding-top: 10px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { color: var(--kg-blue); font-weight: 600; font-size: 14px; }
+
+    #s-loading {
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .spinner {
+      width: 35px;
+      height: 35px;
+      border: 3px solid rgba(0, 175, 239, 0.1);
+      border-top-color: var(--kg-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="page">
-  <div id="s-loading" class="screen active">
-    <div class="spinner-box">
-        <div class="spinner"></div>
-        <p class="loading-text">Preparing Kaggle Dataset...</p>
-    </div>
-  </div>
-
-  <div id="s-main" class="screen">
-    <div class="hero">
-      <div class="icon-outer">📊</div>
-      <h1 class="hero-title">Unlock <span>Dataset</span></h1>
-      <p class="hero-subtitle">Complete the 2 quick verification steps below to get instant access.</p>
+  <div class="page">
+    <div id="s-loading" class="screen active">
+      <div class="spinner"></div>
     </div>
 
-    <div class="main-content">
-        <div class="progress-header">
-            <span class="progress-title">Quick Verification</span>
-            <span id="progress-count" class="progress-count">0 / 2</span>
+    <div id="s-main" class="screen">
+      <div class="hero">
+        <div class="icon-outer">📊</div>
+        <h1 class="hero-title">Verification <span>Required</span></h1>
+        <p style="color:var(--kg-hint); font-size:13px;">Complete 2 steps to unlock your dataset.</p>
+      </div>
+
+      <div class="progress-wrap">
+        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700">
+          <span style="color:var(--kg-hint)">PROGRESS</span>
+          <span id="progress-text" style="color:var(--kg-blue)">0 / 2</span>
         </div>
-        
+
         <div class="task-list">
-            <div class="task-item current-active" id="task1">
-              <div class="task-info">
-                <span class="task-icon-status" id="icon1">1️⃣</span>
-                <div class="task-title">Initial Security Check</div>
-              </div>
-              <button class="task-btn" id="btn-ad1" onclick="watchAd(1)">Verify</button>
+          <div class="task-item" id="task1">
+            <div style="display:flex; align-items:center; gap:12px">
+              <span id="icon1">1️⃣</span>
+              <div style="font-size:14px; font-weight:600">First Verification</div>
             </div>
+            <button class="task-btn" id="btn-ad1" onclick="watchAd(1)">Start</button>
+          </div>
 
-            <div class="task-item disabled" id="task2">
-              <div class="task-info">
-                <span class="task-icon-status" id="icon2">2️⃣</span>
-                <div class="task-title">Final Human Confirm</div>
-              </div>
-              <button class="task-btn" id="btn-ad2" onclick="watchAd(2)" disabled>Verify</button>
+          <div class="task-item disabled" id="task2">
+            <div style="display:flex; align-items:center; gap:12px">
+              <span id="icon2">2️⃣</span>
+              <div style="font-size:14px; font-weight:600">Final Verification</div>
             </div>
+            <button class="task-btn" id="btn-ad2" onclick="watchAd(2)" disabled>Start</button>
+          </div>
         </div>
+      </div>
 
-        <button class="btn-final" id="btn-final" disabled onclick="goToDataset()">
-          <span id="final-icon">🔒</span> <span id="final-text">Complete Steps to Unlock</span>
-        </button>
-    </div>
+      <button class="btn-final" id="btn-final" disabled onclick="goToDataset()">
+        🔒 Complete Steps to Unlock
+      </button>
 
-    <div class="tgb-wrapper">
-      <span class="tgb-label">Sponsored Access</span>
-      <div id="tads-container-9639"></div>
+      <div class="tgb-wrapper">
+        <small style="color:var(--kg-hint); font-size:9px; letter-spacing:1px">ADS BY TADS</small>
+        <div id="tads-container-9639"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  const tg = window.Telegram?.WebApp || null;
-  if (tg) { tg.ready(); tg.expand(); if(tg.headerColor) tg.headerColor = "#F0F2F5"; }
+  <script>
+    const tg = window.Telegram?.WebApp || null;
+    if (tg) { tg.ready(); tg.expand(); }
 
-  const FULLSCREEN_ID = "9604";
-  const TGB_ID = "9639";
-  let fullscreenAd = null;
-  let currentStep = 1;
-  let isAdPlaying = false;
+    const FULLSCREEN_ID = "9604";
+    const TGB_ID = "9639";
+    let fullscreenAd = null;
+    let currentStep = 1;
+    let isAdPlaying = false;
 
-  // Optimized URL Decoding
-  function getTargetUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const code = tg?.initDataUnsafe?.start_param || params.get('startapp') || params.get('tgWebAppStartParam');
-    if (!code) return 'https://www.kaggle.com/';
-    try { 
-        // Handle padding and web-safe base64
-        const paddedCode = code.padEnd(code.length + (4 - code.length % 4) % 4, '=');
-        return atob(paddedCode.replace(/-/g, '+').replace(/_/g, '/')); 
-    } catch(e) { console.error("Decode error", e); return 'https://www.kaggle.com/'; }
-  }
-  const TARGET_URL = getTargetUrl();
+    function getTargetUrl() {
+      const code = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp');
+      if (!code) return 'https://www.kaggle.com/';
+      try { return atob(code.replace(/-/g, '+').replace(/_/g, '/')); } catch (e) { return 'https://www.kaggle.com/'; }
+    }
+    const TARGET_URL = getTargetUrl();
 
-  function initAds() {
-    let checkTads = setInterval(() => {
-      if (window.tads && window.tads.init) {
-        clearInterval(checkTads);
-        
-        // Fullscreen Setup
-        fullscreenAd = window.tads.init({
-          widgetId: FULLSCREEN_ID,
-          type: 'fullscreen',
-          onShowReward: () => handleAdSuccess(),
-          onAdsNotFound: () => { console.log("Ad not found fallback"); handleAdSuccess(); }, 
-          onError: (err) => { console.error("Ad error", err); resetBtn(); }
-        });
+    function initAds() {
+      let checkTads = setInterval(() => {
+        if (window.tads && window.tads.init) {
+          clearInterval(checkTads);
 
-        // TGB Setup
-        const tgb = window.tads.init({
-          widgetId: TGB_ID,
-          type: 'static',
-          onAdsNotFound: () => document.querySelector('.tgb-wrapper').style.display = 'none'
-        });
-        tgb.loadAd().then(() => tgb.showAd());
-        
-        // Smooth transition to main screen
-        setTimeout(() => {
-            document.getElementById('s-loading').classList.remove('active');
-            document.getElementById('s-main').classList.add('active');
-        }, 800);
+          fullscreenAd = window.tads.init({
+            widgetId: FULLSCREEN_ID,
+            type: 'fullscreen',
+            onShowReward: () => handleAdSuccess(),
+            onAdsNotFound: () => handleAdSuccess(), // Fallback
+            onError: () => resetBtn()
+          });
+
+          const tgb = window.tads.init({
+            widgetId: TGB_ID,
+            type: 'static',
+            onAdsNotFound: () => document.getElementById(`tads-container-${TGB_ID}`).style.display = 'none'
+          });
+          tgb.loadAd().then(() => tgb.showAd());
+
+          document.getElementById('s-loading').classList.remove('active');
+          document.getElementById('s-main').classList.add('active');
+        }
+      }, 200);
+    }
+
+    function watchAd(step) {
+      if (step !== currentStep || isAdPlaying) return;
+      isAdPlaying = true;
+
+      const btn = document.getElementById(`btn-ad${step}`);
+      btn.disabled = true;
+      btn.textContent = "⏳...";
+
+      if (fullscreenAd) {
+        fullscreenAd.showAd().catch(() => handleAdSuccess());
+      } else {
+        handleAdSuccess();
       }
-    }, 200);
-  }
-
-  function watchAd(step) {
-    if (step !== currentStep || isAdPlaying) return;
-    isAdPlaying = true;
-    
-    const btn = document.getElementById(`btn-ad${step}`);
-    const item = document.getElementById(`task${step}`);
-    
-    // UI Loading state
-    btn.disabled = true;
-    btn.textContent = "⏳";
-    item.classList.remove('current-active'); // Stop pulsing
-
-    if (fullscreenAd) {
-      fullscreenAd.showAd().catch((e) => {
-          console.warn("ShowAd failed", e);
-          handleAdSuccess();
-      });
-    } else {
-      setTimeout(handleAdSuccess, 1000); // Fake load if no SDK
     }
-  }
 
-  function handleAdSuccess() {
-    if(!isAdPlaying && currentStep > 2) return; // Prevent double trigger
-    isAdPlaying = false;
-    const btn = document.getElementById(`btn-ad${currentStep}`);
-    const item = document.getElementById(`task${currentStep}`);
-    const icon = document.getElementById(`icon${currentStep}`);
+    function handleAdSuccess() {
+      isAdPlaying = false;
+      const btn = document.getElementById(`btn-ad${currentStep}`);
+      const item = document.getElementById(`task${currentStep}`);
+      const icon = document.getElementById(`icon${currentStep}`);
 
-    // Vibrant Success UI update
-    btn.textContent = "✓";
-    btn.classList.add('done');
-    item.classList.add('completed');
-    item.classList.remove('current-active');
-    icon.textContent = "🎉"; 
-    icon.style.fontSize = "24px";
-    
-    document.getElementById('progress-count').textContent = `${currentStep} / 2`;
+      btn.textContent = "✅";
+      btn.classList.add('done');
+      item.classList.add('completed');
+      icon.textContent = "✓";
 
-    // Modern haptic feedback
-    if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      document.getElementById('progress-text').textContent = `${currentStep} / 2`;
 
-    if (currentStep === 1) {
-      currentStep = 2;
-      const nextItem = document.getElementById('task2');
-      const nextBtn = document.getElementById('btn-ad2');
-      
-      // Delay next step activation for better feel
-      setTimeout(() => {
-          nextItem.classList.remove('disabled');
-          nextItem.classList.add('current-active'); // Start pulsing next one
-          nextBtn.disabled = false;
-          nextBtn.textContent = "Verify";
-      }, 600);
-    } else {
-      // All steps done - Activate final shiny button
-      setTimeout(activateFinalButton, 600);
+      if (currentStep === 1) {
+        currentStep = 2;
+        const nextItem = document.getElementById('task2');
+        const nextBtn = document.getElementById('btn-ad2');
+        nextItem.classList.remove('disabled');
+        nextBtn.disabled = false;
+      } else {
+        const finalBtn = document.getElementById('btn-final');
+        finalBtn.disabled = false;
+        finalBtn.classList.add('active');
+        finalBtn.innerHTML = "🚀 Download Dataset Now";
+      }
     }
-  }
 
-  function activateFinalButton() {
-      const finalBtn = document.getElementById('btn-final');
-      finalBtn.disabled = false;
-      finalBtn.classList.add('active');
-      document.getElementById('final-icon').textContent = "🚀";
-      document.getElementById('final-text').textContent = "Get Dataset Now";
-      
-      // Look at me haptic
-      if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-  }
+    function resetBtn() {
+      isAdPlaying = false;
+      const btn = document.getElementById(`btn-ad${currentStep}`);
+      btn.disabled = false;
+      btn.textContent = "Start";
+    }
 
-  function resetBtn() {
-    isAdPlaying = false;
-    const btn = document.getElementById(`btn-ad${currentStep}`);
-    const item = document.getElementById(`task${currentStep}`);
-    btn.disabled = false;
-    btn.textContent = "Verify";
-    item.classList.add('current-active');
-    if(tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-  }
+    function goToDataset() {
+      if (tg?.openLink) {
+        tg.openLink(TARGET_URL);
+        setTimeout(() => tg.close(), 600);
+      } else { window.location.href = TARGET_URL; }
+    }
 
-  function goToDataset() {
-    if (tg?.openLink) {
-      tg.openLink(TARGET_URL);
-      // Optional: close app after redirect
-      // setTimeout(() => tg.close(), 1000);
-    } else { window.location.href = TARGET_URL; }
-  }
-
-  // Start initialization on load
-  window.addEventListener('load', initAds);
-</script>
+    window.addEventListener('load', initAds);
+  </script>
 </body>
+
 </html>
