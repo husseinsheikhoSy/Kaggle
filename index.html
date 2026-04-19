@@ -2,360 +2,449 @@
 <html lang="en" dir="ltr">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Kaggle Dataset Access - 2 Steps</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://w.tads.me/widget.js"></script>
-  <style>
-    *,
-    *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Kaggle Dataset Access</title>
 
-    :root {
-      --kg-blue: #00AFEF;
-      --kg-bg: #F5F5F5;
-      --kg-card: #FFFFFF;
-      --kg-text: #202124;
-      --kg-hint: #5F6368;
-      --kg-border: #DADCE0;
-      --kg-success: #00C176;
-      --radius-lg: 16px;
-    }
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://w.tads.me/widget.js"></script>
 
-    body {
-      background: var(--kg-bg);
-      color: var(--kg-text);
-      font-family: 'Inter', -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 0;
-    }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
 
-    .page {
-      width: 100%;
-      max-width: 430px;
-      display: flex;
-      flex-direction: column;
-    }
+        :root {
+            /* Palette: Soft Pink & Lavender */
+            --bg-body: #fff1f2;      /* Rose 50 */
+            --bg-card: #ffffff;
+            --text-main: #831843;    /* Pink 900 */
+            --text-muted: #be185d;   /* Pink 700 */
+            --primary: #ec4899;      /* Pink 500 */
+            --success: #10b981;      /* Emerald 500 */
+            --btn-bg: #fce7f3;       /* Pink 100 */
+            --btn-text: #9d174d;     /* Pink 800 */
+            --item-bg: #fff5f7;
+            --border-color: #fbcfe8; /* Pink 200 */
+        }
 
-    .screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      animation: fadeIn 0.3s ease;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
 
-    .screen.active {
-      display: flex;
-    }
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(131, 24, 67, 0.08);
+            position: relative;
+            animation: slideUp 0.5s ease-out;
+        }
 
-      to {
-        opacity: 1;
-      }
-    }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .hero {
-      text-align: center;
-      margin-top: 20px;
-      gap: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
 
-    .icon-outer {
-      width: 70px;
-      height: 70px;
-      background: rgba(0, 175, 239, 0.1);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-    }
+        h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
 
-    .hero-title {
-      font-size: 22px;
-      font-weight: 700;
-    }
+        .progress-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
 
-    .hero-title span {
-      color: var(--kg-blue);
-    }
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
 
-    /* Progress & Tasks */
-    .progress-wrap {
-      width: 100%;
-      margin-top: 24px;
-    }
+        /* Task List Styles */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
 
-    .task-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 15px;
-    }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--item-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
 
-    .task-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--kg-card);
-      border: 1px solid var(--kg-border);
-      padding: 12px 16px;
-      border-radius: 12px;
-      transition: 0.3s;
-    }
+        .task-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.5);
+        }
 
-    .task-item.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-      background: #eee;
-    }
+        .task-item.completed {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.05);
+        }
 
-    .task-item.completed {
-      border-color: var(--kg-success);
-      background: rgba(0, 193, 118, 0.05);
-    }
+        .task-info-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .task-btn {
-      background: var(--kg-blue);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fdf2f8;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-    .task-btn.done {
-      background: transparent;
-      color: var(--kg-success);
-      cursor: default;
-    }
+        .task-item.completed .task-icon {
+            background: #d1fae5;
+            color: var(--success);
+        }
 
-    /* Final Button */
-    .btn-final {
-      width: 100%;
-      padding: 16px;
-      border-radius: var(--radius-lg);
-      border: none;
-      font-size: 16px;
-      font-weight: 700;
-      margin-top: 20px;
-      background: var(--kg-border);
-      color: var(--kg-hint);
-      cursor: not-allowed;
-      transition: 0.3s;
-    }
+        .task-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
 
-    .btn-final.active {
-      background: var(--kg-success);
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 193, 118, 0.3);
-    }
+        .task-reward {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-    /* TGB Ad Section */
-    .tgb-wrapper {
-      margin-top: auto;
-      padding-top: 20px;
-      width: 100%;
-      text-align: center;
-    }
+        /* Buttons */
+        .task-btn {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-    #tads-container-9639 {
-      min-height: 90px;
-      margin-top: 10px;
-      border-top: 1px dashed var(--kg-border);
-      padding-top: 10px;
-    }
+        .task-btn:not(:disabled):hover {
+            background: #fbcfe8;
+        }
 
-    #s-loading {
-      justify-content: center;
-      height: 100vh;
-    }
+        .task-btn.done {
+            background: transparent;
+            color: var(--success);
+            font-size: 15px;
+            pointer-events: none;
+        }
 
-    .spinner {
-      width: 35px;
-      height: 35px;
-      border: 3px solid rgba(0, 175, 239, 0.1);
-      border-top-color: var(--kg-blue);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+        .main-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
+        .main-btn.disabled {
+            background: var(--btn-bg);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .main-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 20px -6px rgba(236, 72, 153, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        }
+
+        /* === TGB Ad Container Styles === */
+        .tgb-ad-wrapper {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tgb-ad-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+        }
+
+        #tads-container-9639 {
+            width: 100%;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #tads-container-9639:empty {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="page">
-    <div id="s-loading" class="screen active">
-      <div class="spinner"></div>
-    </div>
 
-    <div id="s-main" class="screen">
-      <div class="hero">
-        <div class="icon-outer">📊</div>
-        <h1 class="hero-title">Verification <span>Required</span></h1>
-        <p style="color:var(--kg-hint); font-size:13px;">Complete 2 steps to unlock your dataset.</p>
-      </div>
-
-      <div class="progress-wrap">
-        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700">
-          <span style="color:var(--kg-hint)">PROGRESS</span>
-          <span id="progress-text" style="color:var(--kg-blue)">0 / 2</span>
+    <div class="container">
+        <div class="header-top">
+            <h1>Verification</h1>
+            <span class="progress-text" id="progress-text">0/2</span>
         </div>
+        <p class="subtitle">Complete the steps below to unlock your Kaggle dataset access.</p>
 
         <div class="task-list">
-          <div class="task-item" id="task1">
-            <div style="display:flex; align-items:center; gap:12px">
-              <span id="icon1">1️⃣</span>
-              <div style="font-size:14px; font-weight:600">First Verification</div>
+            <div class="task-item" id="task1">
+                <div class="task-info-wrapper">
+                    <div class="task-icon" id="icon1">🌸</div>
+                    <div>
+                        <div class="task-title">First Step</div>
+                        <div class="task-reward">✨ Verification Required</div>
+                    </div>
+                </div>
+                <button class="task-btn" id="btn-ad1" onclick="watchAd(1)">Start</button>
             </div>
-            <button class="task-btn" id="btn-ad1" onclick="watchAd(1)">Start</button>
-          </div>
 
-          <div class="task-item disabled" id="task2">
-            <div style="display:flex; align-items:center; gap:12px">
-              <span id="icon2">2️⃣</span>
-              <div style="font-size:14px; font-weight:600">Final Verification</div>
+            <div class="task-item disabled" id="task2">
+                <div class="task-info-wrapper">
+                    <div class="task-icon" id="icon2">💎</div>
+                    <div>
+                        <div class="task-title">Final Step</div>
+                        <div class="task-reward">✨ Almost there</div>
+                    </div>
+                </div>
+                <button class="task-btn" id="btn-ad2" onclick="watchAd(2)" disabled>Start</button>
             </div>
-            <button class="task-btn" id="btn-ad2" onclick="watchAd(2)" disabled>Start</button>
-          </div>
         </div>
-      </div>
 
-      <button class="btn-final" id="btn-final" disabled onclick="goToDataset()">
-        🔒 Complete Steps to Unlock
-      </button>
+        <button class="main-btn disabled" id="btn-final" onclick="goToDataset()" disabled>
+            🔒 Complete steps to unlock
+        </button>
 
-      <div class="tgb-wrapper">
-        <small style="color:var(--kg-hint); font-size:9px; letter-spacing:1px">ADS BY TADS</small>
-        <div id="tads-container-9639"></div>
-      </div>
+        <div class="tgb-ad-wrapper">
+            <span class="tgb-ad-label">Sponsored Content</span>
+            <div id="tads-container-9639"></div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const tg = window.Telegram?.WebApp || null;
-    if (tg) { tg.ready(); tg.expand(); }
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram?.WebApp || null;
+        if (tg) { tg.ready(); tg.expand(); }
 
-    const FULLSCREEN_ID = "9604";
-    const TGB_ID = "9639";
-    let fullscreenAd = null;
-    let currentStep = 1;
-    let isAdPlaying = false;
+        // TADS Configuration from Index (8)
+        const FULLSCREEN_WIDGET_ID = "9604";
+        const TGB_WIDGET_ID = "9639";
+        const AD_TYPE_FULLSCREEN = "fullscreen";
+        const AD_TYPE_TGB = "static";
+        
+        let fullscreenAdController = null;
+        let tgbAdController = null;
 
-    function getTargetUrl() {
-      const code = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp');
-      if (!code) return 'https://www.kaggle.com/';
-      try { return atob(code.replace(/-/g, '+').replace(/_/g, '/')); } catch (e) { return 'https://www.kaggle.com/'; }
-    }
-    const TARGET_URL = getTargetUrl();
+        // Task State
+        let currentStep = 1;
+        let isAdPlaying = false;
 
-    function initAds() {
-      let checkTads = setInterval(() => {
-        if (window.tads && window.tads.init) {
-          clearInterval(checkTads);
-
-          fullscreenAd = window.tads.init({
-            widgetId: FULLSCREEN_ID,
-            type: 'fullscreen',
-            onShowReward: () => handleAdSuccess(),
-            onAdsNotFound: () => handleAdSuccess(), // Fallback
-            onError: () => resetBtn()
-          });
-
-          const tgb = window.tads.init({
-            widgetId: TGB_ID,
-            type: 'static',
-            onAdsNotFound: () => document.getElementById(`tads-container-${TGB_ID}`).style.display = 'none'
-          });
-          tgb.loadAd().then(() => tgb.showAd());
-
-          document.getElementById('s-loading').classList.remove('active');
-          document.getElementById('s-main').classList.add('active');
+        // Retrieve Target URL (Kaggle Default)
+        function getTargetUrl() {
+            const code = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp');
+            if (!code) return 'https://www.kaggle.com/';
+            try {
+                const decoded = atob(code.replace(/-/g, '+').replace(/_/g, '/'));
+                return decoded.startsWith('http') ? decoded : 'https://www.kaggle.com/';
+            } catch (e) { return 'https://www.kaggle.com/'; }
         }
-      }, 200);
-    }
+        const TARGET_URL = getTargetUrl();
 
-    function watchAd(step) {
-      if (step !== currentStep || isAdPlaying) return;
-      isAdPlaying = true;
+        // Initialize Ads on Page Load
+        window.addEventListener('load', () => {
+            initFullscreenAd();
+            initTGBAd();
+        });
 
-      const btn = document.getElementById(`btn-ad${step}`);
-      btn.disabled = true;
-      btn.textContent = "⏳...";
+        function initFullscreenAd() {
+            let checkTads = setInterval(() => {
+                if (window.tads && typeof window.tads.init === 'function') {
+                    clearInterval(checkTads);
+                    fullscreenAdController = window.tads.init({
+                        widgetId: FULLSCREEN_WIDGET_ID,
+                        type: AD_TYPE_FULLSCREEN,
+                        debug: false,
+                        onShowReward: () => handleAdSuccess(),
+                        onAdsNotFound: () => handleAdFallback(),
+                        onError: (err) => {
+                            console.error("Fullscreen Ad Error:", err);
+                            resetButtonState();
+                        }
+                    });
+                }
+            }, 100);
+        }
 
-      if (fullscreenAd) {
-        fullscreenAd.showAd().catch(() => handleAdSuccess());
-      } else {
-        handleAdSuccess();
-      }
-    }
+        function initTGBAd() {
+            const adsNotFoundCallback = () => {
+                const container = document.getElementById(`tads-container-${TGB_WIDGET_ID}`);
+                if (container) container.style.display = 'none';
+            };
 
-    function handleAdSuccess() {
-      isAdPlaying = false;
-      const btn = document.getElementById(`btn-ad${currentStep}`);
-      const item = document.getElementById(`task${currentStep}`);
-      const icon = document.getElementById(`icon${currentStep}`);
+            function initTGBController() {
+                if (!window.tads || typeof window.tads.init !== 'function') return;
+                
+                tgbAdController = window.tads.init({
+                    widgetId: TGB_WIDGET_ID,
+                    type: AD_TYPE_TGB,
+                    debug: false,
+                    onAdsNotFound: adsNotFoundCallback
+                });
 
-      btn.textContent = "✅";
-      btn.classList.add('done');
-      item.classList.add('completed');
-      icon.textContent = "✓";
+                if (tgbAdController && typeof tgbAdController.loadAd === 'function') {
+                    tgbAdController.loadAd()
+                        .then(() => tgbAdController.showAd())
+                        .catch((err) => {
+                            console.log("TGB Ad load error:", err);
+                            adsNotFoundCallback();
+                        });
+                }
+            }
 
-      document.getElementById('progress-text').textContent = `${currentStep} / 2`;
+            if (window.tads && window.tads.init) {
+                initTGBController();
+            } else {
+                let tadsInterval = setInterval(() => {
+                    if (window.tads && window.tads.init) {
+                        clearInterval(tadsInterval);
+                        initTGBController();
+                    }
+                }, 100);
+            }
+        }
 
-      if (currentStep === 1) {
-        currentStep = 2;
-        const nextItem = document.getElementById('task2');
-        const nextBtn = document.getElementById('btn-ad2');
-        nextItem.classList.remove('disabled');
-        nextBtn.disabled = false;
-      } else {
-        const finalBtn = document.getElementById('btn-final');
-        finalBtn.disabled = false;
-        finalBtn.classList.add('active');
-        finalBtn.innerHTML = "🚀 Download Dataset Now";
-      }
-    }
+        function watchAd(stepNumber) {
+            if (stepNumber !== currentStep || isAdPlaying) return;
+            isAdPlaying = true;
+            let btn = document.getElementById(`btn-ad${stepNumber}`);
+            btn.innerText = "⏳...";
+            btn.disabled = true;
 
-    function resetBtn() {
-      isAdPlaying = false;
-      const btn = document.getElementById(`btn-ad${currentStep}`);
-      btn.disabled = false;
-      btn.textContent = "Start";
-    }
+            if (fullscreenAdController) {
+                fullscreenAdController.showAd().catch((err) => {
+                    handleAdFallback();
+                });
+            } else {
+                handleAdFallback();
+            }
+        }
 
-    function goToDataset() {
-      if (tg?.openLink) {
-        tg.openLink(TARGET_URL);
-        setTimeout(() => tg.close(), 600);
-      } else { window.location.href = TARGET_URL; }
-    }
+        function handleAdSuccess() {
+            isAdPlaying = false;
+            let currentBtn = document.getElementById(`btn-ad${currentStep}`);
+            let currentItem = document.getElementById(`task${currentStep}`);
+            let currentIcon = document.getElementById(`icon${currentStep}`);
 
-    window.addEventListener('load', initAds);
-  </script>
+            currentBtn.innerText = "✅";
+            currentBtn.classList.add('done');
+            currentItem.classList.add('completed');
+            currentIcon.innerText = "✓";
+
+            document.getElementById('progress-text').innerText = `${currentStep}/2`;
+            currentStep++;
+
+            if (currentStep === 2) {
+                let nextBtn = document.getElementById('btn-ad2');
+                let nextItem = document.getElementById('task2');
+                nextItem.classList.remove('disabled');
+                nextBtn.disabled = false;
+            } else if (currentStep > 2) {
+                let finalBtn = document.getElementById('btn-final');
+                finalBtn.classList.remove('disabled');
+                finalBtn.classList.add('active');
+                finalBtn.disabled = false;
+                finalBtn.innerHTML = "🚀 Download Dataset";
+            }
+        }
+
+        function handleAdFallback() {
+            setTimeout(() => { handleAdSuccess(); }, 1200);
+        }
+
+        function resetButtonState() {
+            isAdPlaying = false;
+            let btn = document.getElementById(`btn-ad${currentStep}`);
+            btn.innerText = "Start";
+            btn.disabled = false;
+        }
+
+        function goToDataset() {
+            if (tg?.openLink) {
+                tg.openLink(TARGET_URL);
+                setTimeout(() => tg.close(), 1000);
+            } else {
+                window.location.href = TARGET_URL;
+            }
+        }
+    </script>
 </body>
-
 </html>
