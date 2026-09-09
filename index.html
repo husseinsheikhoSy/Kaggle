@@ -4,59 +4,69 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Kaggle Dataset Access</title>
+    <title>Kaggle Dataset Access — Verification</title>
+    <meta name="description" content="Complete two quick verification steps to unlock free access to this Kaggle dataset." />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="theme-color" content="#0A0708" />
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://w.tads.me/widget.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap');
 
         :root {
-            /* Palette: Soft Pink & Lavender */
-            --bg-body: #fff1f2;      /* Rose 50 */
-            --bg-card: #ffffff;
-            --text-main: #831843;    /* Pink 900 */
-            --text-muted: #be185d;   /* Pink 700 */
-            --primary: #ec4899;      /* Pink 500 */
-            --success: #10b981;      /* Emerald 500 */
-            --btn-bg: #fce7f3;       /* Pink 100 */
-            --btn-text: #9d174d;     /* Pink 800 */
-            --item-bg: #fff5f7;
-            --border-color: #fbcfe8; /* Pink 200 */
+            /* Palette: Black & Scarlet Red */
+            --bg-body:      #0A0708;
+            --bg-2:         #170A0C;
+            --bg-card:      #140A0B;
+            --text-main:    #F5EAEB;
+            --text-muted:   #B08D91;
+            --primary:      #E01143;   /* scarlet red */
+            --primary-dark: #7A0526;
+            --primary-bright:#FF2E63;
+            --primary-pale: rgba(224,17,67,.16);
+            --primary-glow: rgba(224,17,67,.38);
+            --success:      #10b981;
+            --success-bg:   rgba(16,185,129,.12);
+            --border-color: #341318;
+            --item-bg:      rgba(255,255,255,.03);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
         }
 
         body {
-            background: var(--bg-body);
+            background: linear-gradient(180deg, var(--bg-body) 0%, #000 100%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
             width: 100%;
             max-width: 400px;
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 10px 25px rgba(131, 24, 67, 0.08);
+            background: linear-gradient(180deg, var(--bg-card) 0%, #0B0506 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 26px;
+            padding: 26px 22px;
+            box-shadow: 0 14px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.03);
             position: relative;
-            animation: slideUp 0.5s ease-out;
+            animation: slideUp 0.5s cubic-bezier(.22,.61,.36,1) both;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .header-top {
@@ -67,31 +77,33 @@
         }
 
         h1 {
-            font-size: 22px;
+            font-family: 'Playfair Display', serif;
+            font-size: 21px;
             font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
+            color: #fff;
+            letter-spacing: -0.4px;
         }
 
         .progress-text {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary);
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--primary-bright);
+            text-shadow: 0 0 16px var(--primary-glow);
         }
 
         p.subtitle {
             color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 24px;
-            line-height: 1.5;
+            font-size: 13.5px;
+            margin-bottom: 22px;
+            line-height: 1.6;
         }
 
         /* Task List Styles */
         .task-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 22px;
         }
 
         .task-item {
@@ -101,19 +113,21 @@
             background: var(--item-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 12px 16px;
-            transition: all 0.3s ease;
+            padding: 13px 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
         }
 
         .task-item.disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             pointer-events: none;
             filter: grayscale(0.5);
         }
 
         .task-item.completed {
             border-color: rgba(16, 185, 129, 0.3);
-            background: rgba(16, 185, 129, 0.05);
+            background: var(--success-bg);
         }
 
         .task-info-wrapper {
@@ -123,34 +137,36 @@
         }
 
         .task-icon {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: #fdf2f8;
-            color: var(--primary);
+            background: linear-gradient(180deg, var(--primary-bright) 0%, var(--primary-dark) 100%);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 0 2px 8px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,.25);
+            flex-shrink: 0;
         }
 
         .task-item.completed .task-icon {
-            background: #d1fae5;
-            color: var(--success);
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            box-shadow: 0 2px 8px rgba(16,185,129,.3);
         }
 
         .task-title {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .task-reward {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--primary);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 4px;
@@ -158,66 +174,89 @@
 
         /* Buttons */
         .task-btn {
-            background: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
+            background: rgba(255,255,255,.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 9px 16px;
+            font-size: 13.5px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.18s ease;
         }
 
-        .task-btn:not(:disabled):hover {
-            background: #fbcfe8;
+        .task-btn:not(:disabled):active {
+            transform: scale(0.95);
+            border-color: var(--primary);
         }
 
         .task-btn.done {
             background: transparent;
+            border-color: transparent;
             color: var(--success);
-            font-size: 15px;
+            font-size: 16px;
             pointer-events: none;
         }
 
+        /* iOS-style filled CTA */
         .main-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 16px;
+            padding: 17px;
+            border-radius: 14px;
             border: none;
             font-size: 16px;
             font-weight: 700;
+            letter-spacing: -.2px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.18s ease;
         }
 
         .main-btn.disabled {
-            background: var(--btn-bg);
+            background: var(--border-color);
             color: var(--text-muted);
             cursor: not-allowed;
         }
 
         .main-btn.active {
-            background: var(--primary);
+            background: linear-gradient(180deg, var(--primary-bright) 0%, var(--primary) 55%, var(--primary-dark) 100%);
             color: white;
-            box-shadow: 0 8px 20px -6px rgba(236, 72, 153, 0.5);
+            box-shadow: 0 8px 26px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,.25);
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        .main-btn.active:active {
+            transform: scale(0.97);
         }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 var(--primary-glow); }
+            70% { box-shadow: 0 0 0 12px rgba(224,17,67,0); }
+            100% { box-shadow: 0 0 0 0 rgba(224,17,67,0); }
+        }
+
+        .toast {
+            display: none;
+            text-align: center;
+            font-size: 13px;
+            color: var(--primary-bright);
+            background: var(--primary-pale);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            font-weight: 700;
+        }
+        .toast.visible { display: block; }
+        .toast.error { color: #FF7A7A; background: rgba(255,80,80,.1); border-color: rgba(255,80,80,.25); }
 
         /* === TGB Ad Container Styles === */
         .tgb-ad-wrapper {
-            margin-top: 24px;
-            padding-top: 20px;
+            margin-top: 22px;
+            padding-top: 18px;
             border-top: 1px dashed var(--border-color);
             display: flex;
             flex-direction: column;
@@ -229,7 +268,7 @@
             font-size: 10px;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             opacity: 0.7;
         }
 
@@ -244,6 +283,15 @@
         #tads-container-9639:empty {
             display: none;
         }
+
+        .disclaimer-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 18px;
+            line-height: 1.6;
+            padding: 0 4px;
+        }
     </style>
 </head>
 
@@ -254,15 +302,15 @@
             <h1>Verification</h1>
             <span class="progress-text" id="progress-text">0/2</span>
         </div>
-        <p class="subtitle">Complete the steps below to unlock your Kaggle dataset access.</p>
+        <p class="subtitle">Complete the two quick steps below to unlock your Kaggle dataset access — no payment, no account needed.</p>
 
         <div class="task-list">
             <div class="task-item" id="task1">
                 <div class="task-info-wrapper">
-                    <div class="task-icon" id="icon1">🌸</div>
+                    <div class="task-icon" id="icon1">1</div>
                     <div>
-                        <div class="task-title">First Step</div>
-                        <div class="task-reward">✨ Verification Required</div>
+                        <div class="task-title">Watch ad #1</div>
+                        <div class="task-reward" id="reward1">Tap to start</div>
                     </div>
                 </div>
                 <button class="task-btn" id="btn-ad1" onclick="watchAd(1)">Start</button>
@@ -270,10 +318,10 @@
 
             <div class="task-item disabled" id="task2">
                 <div class="task-info-wrapper">
-                    <div class="task-icon" id="icon2">💎</div>
+                    <div class="task-icon" id="icon2">2</div>
                     <div>
-                        <div class="task-title">Final Step</div>
-                        <div class="task-reward">✨ Almost there</div>
+                        <div class="task-title">Watch ad #2</div>
+                        <div class="task-reward" id="reward2">Unlocks after step 1</div>
                     </div>
                 </div>
                 <button class="task-btn" id="btn-ad2" onclick="watchAd(2)" disabled>Start</button>
@@ -283,28 +331,39 @@
         <button class="main-btn disabled" id="btn-final" onclick="goToDataset()" disabled>
             🔒 Complete steps to unlock
         </button>
+        <div class="toast" id="toast" role="status"></div>
 
         <div class="tgb-ad-wrapper">
             <span class="tgb-ad-label">Sponsored Content</span>
             <div id="tads-container-9639"></div>
         </div>
+
+        <p class="disclaimer-note">
+            Completing the two quick steps unlocks the dataset link —
+            no payment, no account needed.
+        </p>
     </div>
 
     <script>
         // Initialize Telegram WebApp
         const tg = window.Telegram?.WebApp || null;
-        if (tg) { tg.ready(); tg.expand(); }
+        if (tg) {
+            tg.ready(); tg.expand();
+            if (tg.disableClosingConfirmation) tg.disableClosingConfirmation();
+            try { tg.setHeaderColor('#0A0708'); } catch (e) {}
+            try { tg.setBackgroundColor('#0A0708'); } catch (e) {}
+        }
 
-        // TADS Configuration from Index (8)
-        const FULLSCREEN_WIDGET_ID = "9604";
-        const TGB_WIDGET_ID = "9639";
-        const AD_TYPE_FULLSCREEN = "fullscreen";
-        const AD_TYPE_TGB = "static";
-        
-        let fullscreenAdController = null;
-        let tgbAdController = null;
+        /* ---------------- tads.me configuration ----------------
+           Step 1 -> fullscreen widget #9604
+           Step 2 -> fullscreen widget #12051
+           Sponsored slot -> TGB widget #9639
+        ------------------------------------------------------- */
+        const FULLSCREEN_WIDGET_BY_STEP = { 1: '9604', 2: '12051' };
+        const TGB_WIDGET_ID = '9639';
+        const TADS_DEBUG = false; // set to true only while testing
 
-        // Task State
+        const tadsControllers = {};
         let currentStep = 1;
         let isAdPlaying = false;
 
@@ -319,122 +378,133 @@
         }
         const TARGET_URL = getTargetUrl();
 
-        // Initialize Ads on Page Load
-        window.addEventListener('load', () => {
-            initFullscreenAd();
-            initTGBAd();
-        });
+        function waitForTadsReady(timeout = 6000) {
+            return new Promise((resolve, reject) => {
+                if (window.tads && typeof window.tads.init === 'function') return resolve();
+                const start = performance.now();
+                const iv = setInterval(() => {
+                    if (window.tads && typeof window.tads.init === 'function') {
+                        clearInterval(iv);
+                        resolve();
+                    } else if (performance.now() - start > timeout) {
+                        clearInterval(iv);
+                        reject(new Error('tads.me widget script did not load in time'));
+                    }
+                }, 50);
+            });
+        }
 
-        function initFullscreenAd() {
-            let checkTads = setInterval(() => {
-                if (window.tads && typeof window.tads.init === 'function') {
-                    clearInterval(checkTads);
-                    fullscreenAdController = window.tads.init({
-                        widgetId: FULLSCREEN_WIDGET_ID,
-                        type: AD_TYPE_FULLSCREEN,
-                        debug: false,
-                        onShowReward: () => handleAdSuccess(),
-                        onAdsNotFound: () => handleAdFallback(),
-                        onError: (err) => {
-                            console.error("Fullscreen Ad Error:", err);
-                            resetButtonState();
+        // Shows the fullscreen ad tied to a given verification step and
+        // resolves true only once the user has actually watched/earned reward.
+        function showRewardedAd(step) {
+            const widgetId = FULLSCREEN_WIDGET_BY_STEP[step];
+            return new Promise((resolve) => {
+                let rewarded = false;
+                waitForTadsReady()
+                    .then(() => {
+                        if (!tadsControllers[widgetId]) {
+                            tadsControllers[widgetId] = window.tads.init({
+                                widgetId: widgetId,
+                                type: 'fullscreen',
+                                debug: TADS_DEBUG,
+                                onShowReward: () => { rewarded = true; },
+                                onAdsNotFound: () => resolve(false),
+                            });
                         }
+                        return Promise.resolve(tadsControllers[widgetId]);
+                    })
+                    .then((controller) => {
+                        if (!controller || typeof controller.showAd !== 'function') {
+                            throw new Error('tads.me ad controller not ready');
+                        }
+                        return controller.showAd();
+                    })
+                    .then(() => resolve(true))
+                    .catch((err) => {
+                        console.error('tads.me ad error', err);
+                        resolve(rewarded);
                     });
-                }
-            }, 100);
+            });
         }
 
         function initTGBAd() {
-            const adsNotFoundCallback = () => {
-                const container = document.getElementById(`tads-container-${TGB_WIDGET_ID}`);
-                if (container) container.style.display = 'none';
-            };
-
-            function initTGBController() {
-                if (!window.tads || typeof window.tads.init !== 'function') return;
-                
-                tgbAdController = window.tads.init({
+            waitForTadsReady()
+                .then(() => window.tads.init({
                     widgetId: TGB_WIDGET_ID,
-                    type: AD_TYPE_TGB,
-                    debug: false,
-                    onAdsNotFound: adsNotFoundCallback
-                });
-
-                if (tgbAdController && typeof tgbAdController.loadAd === 'function') {
-                    tgbAdController.loadAd()
-                        .then(() => tgbAdController.showAd())
-                        .catch((err) => {
-                            console.log("TGB Ad load error:", err);
-                            adsNotFoundCallback();
-                        });
-                }
-            }
-
-            if (window.tads && window.tads.init) {
-                initTGBController();
-            } else {
-                let tadsInterval = setInterval(() => {
-                    if (window.tads && window.tads.init) {
-                        clearInterval(tadsInterval);
-                        initTGBController();
-                    }
-                }, 100);
-            }
+                    type: 'static',
+                    debug: TADS_DEBUG,
+                    onAdsNotFound: () => {
+                        const el = document.getElementById('tads-container-' + TGB_WIDGET_ID);
+                        if (el) el.style.display = 'none';
+                    },
+                }))
+                .then((controller) => {
+                    if (!controller || typeof controller.loadAd !== 'function') return;
+                    return controller.loadAd().then(() => controller.showAd());
+                })
+                .catch((err) => console.error('tads.me TGB error', err));
         }
 
-        function watchAd(stepNumber) {
-            if (stepNumber !== currentStep || isAdPlaying) return;
+        window.addEventListener('load', initTGBAd);
+
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast visible' + (isError ? ' error' : '');
+            setTimeout(() => t.classList.remove('visible'), 4000);
+        }
+
+        async function watchAd(step) {
+            if (step !== currentStep || isAdPlaying) return;
             isAdPlaying = true;
-            let btn = document.getElementById(`btn-ad${stepNumber}`);
-            btn.innerText = "⏳...";
-            btn.disabled = true;
 
-            if (fullscreenAdController) {
-                fullscreenAdController.showAd().catch((err) => {
-                    handleAdFallback();
-                });
-            } else {
-                handleAdFallback();
+            const btn = document.getElementById('btn-ad' + step);
+            const reward = document.getElementById('reward' + step);
+            btn.innerText = '⏳';
+            btn.disabled = true;
+            reward.textContent = 'Loading ad…';
+
+            const ok = await showRewardedAd(step);
+            isAdPlaying = false;
+
+            if (!ok) {
+                btn.innerText = 'Start';
+                btn.disabled = false;
+                reward.textContent = 'Tap to start';
+                showToast('No ad available right now — please try again.', true);
+                return;
             }
+
+            handleAdSuccess(step);
         }
 
-        function handleAdSuccess() {
-            isAdPlaying = false;
-            let currentBtn = document.getElementById(`btn-ad${currentStep}`);
-            let currentItem = document.getElementById(`task${currentStep}`);
-            let currentIcon = document.getElementById(`icon${currentStep}`);
+        function handleAdSuccess(step) {
+            const btn = document.getElementById('btn-ad' + step);
+            const item = document.getElementById('task' + step);
+            const icon = document.getElementById('icon' + step);
+            const reward = document.getElementById('reward' + step);
 
-            currentBtn.innerText = "✅";
-            currentBtn.classList.add('done');
-            currentItem.classList.add('completed');
-            currentIcon.innerText = "✓";
+            btn.innerText = '✅';
+            btn.classList.add('done');
+            item.classList.add('completed');
+            icon.innerText = '✓';
+            reward.textContent = 'Done';
 
-            document.getElementById('progress-text').innerText = `${currentStep}/2`;
-            currentStep++;
+            document.getElementById('progress-text').innerText = step + '/2';
+            currentStep = step + 1;
 
             if (currentStep === 2) {
-                let nextBtn = document.getElementById('btn-ad2');
-                let nextItem = document.getElementById('task2');
-                nextItem.classList.remove('disabled');
-                nextBtn.disabled = false;
+                document.getElementById('task2').classList.remove('disabled');
+                document.getElementById('btn-ad2').disabled = false;
+                document.getElementById('reward2').textContent = 'Tap to start';
             } else if (currentStep > 2) {
-                let finalBtn = document.getElementById('btn-final');
+                const finalBtn = document.getElementById('btn-final');
                 finalBtn.classList.remove('disabled');
                 finalBtn.classList.add('active');
                 finalBtn.disabled = false;
-                finalBtn.innerHTML = "🚀 Download Dataset";
+                finalBtn.innerHTML = '🚀 Download Dataset';
+                showToast('✅ Unlocked! Tap Download Dataset.');
             }
-        }
-
-        function handleAdFallback() {
-            setTimeout(() => { handleAdSuccess(); }, 1200);
-        }
-
-        function resetButtonState() {
-            isAdPlaying = false;
-            let btn = document.getElementById(`btn-ad${currentStep}`);
-            btn.innerText = "Start";
-            btn.disabled = false;
         }
 
         function goToDataset() {
